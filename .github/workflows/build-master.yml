@@ -24,7 +24,7 @@ jobs:
         run: ./gradlew test shadowjar
 
   deploy:
-    if: ${ env.DEPLOY_ENABLED }
+    if: DEPLOY_ENABLED
     runs-on: ubuntu-latest
     needs: test
     steps:
