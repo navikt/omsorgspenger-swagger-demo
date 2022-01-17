@@ -1,4 +1,4 @@
-name: Build main & deploy to dev
+name: Test, build & deploy
 
 concurrency: main
 on:
@@ -7,7 +7,6 @@ on:
       - main
 env:
   BASE_IMAGE: ghcr.io/${{ github.repository }}
-  DEPLOY_ENABLED: false
 
 jobs:
   test:
@@ -23,32 +22,28 @@ jobs:
       - name: Run tests & build shadowjar
         run: ./gradlew test shadowjar
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - run: if( ${{env.DEPLOY_ENABLED == true}} )
-      - uses: docker/login-action@v1.10.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.REPOSITORY_OWNER }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Docker login
+#        uses: docker/login-action@v1.10.0
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.REPOSITORY_OWNER }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sett tag for docker
-        run: |
-          echo "TAG=$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+#      - name: Sett tag for docker
+#        run: |
+#          echo "TAG=$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Bygg & last opp Docker image
-        run: |
-          docker build --tag ${BASE_IMAGE}:${TAG} --tag ${BASE_IMAGE}:latest .
-          docker push ${BASE_IMAGE} --all-tags
+#      - name: Bygg & last opp Docker image
+#        run: |
+#          docker build --tag ${BASE_IMAGE}:${TAG} --tag ${BASE_IMAGE}:latest .
+#          docker push ${BASE_IMAGE} --all-tags
 
-      - name: Sett image for nais deploy
-        run: echo "IMAGE=${BASE_IMAGE}:${TAG}" >> $GITHUB_ENV
+#      - name: Sett image for nais deploy
+#        run: echo "IMAGE=${BASE_IMAGE}:${TAG}" >> $GITHUB_ENV
 
-      - name: Deploy til testmiljø
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: nais/naiserator.yaml
+#      - name: Deploy til testmiljø
+#        uses: nais/deploy/actions/deploy@v1
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: dev-gcp
+#          RESOURCE: nais/naiserator.yaml
