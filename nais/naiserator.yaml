@@ -1,0 +1,37 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: oms-swagger-demo
+  namespace: omsorgspenger
+  labels:
+    team: omsorgspenger
+spec:
+  image: {{image}}
+  port: 8080
+  team: omsorgspenger
+  azure:
+    application:
+      enabled: true
+    sidecar:
+      enabled: true
+      autoLogin: true
+  replicas:
+    min: 1
+    max: 1
+  liveness:
+    path: /actuator/health/liveness
+    initialDelay: 30
+    timeout: 10
+  readiness:
+    path: /actuator/health/readiness
+    initialDelay: 30
+    timeout: 10
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+  ingresses:
+    - https://oms-swagger-demo.dev.intern.nav.no
